@@ -1,0 +1,7 @@
+name: BucketOfLua
+main: im.creep.bucketoflua.BucketOfLuaPlugin
+version: 0.6
+commands:
+   luareload:
+      description: Reload Lua scripts.
+      usage: /luareload
