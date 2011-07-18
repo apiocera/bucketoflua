@@ -1,8 +1,6 @@
 package im.creep.bucketoflua;
 
-import im.creep.bucketoflua.listeners.RunnerBlockListener;
-import im.creep.bucketoflua.listeners.RunnerEntityListener;
-import im.creep.bucketoflua.listeners.RunnerPlayerListener;
+import im.creep.bucketoflua.listeners.*;
 import im.creep.bucketoflua.luaengine.LuaEventListener;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
@@ -21,6 +19,10 @@ public class EventDispatcher {
 	private RunnerPlayerListener playerListener;
 	private RunnerBlockListener blockListener;
 	private RunnerEntityListener entityListener;
+	private RunnerInventoryListener inventoryListener;
+	private RunnerServerListener serverListener;
+	private RunnerVehicleListener vehicleListener;
+	private RunnerWeatherListener weatherListener;
 
 	public EventDispatcher(Plugin pl) {
 		thisPlugin = pl;
@@ -29,6 +31,10 @@ public class EventDispatcher {
 		playerListener = new RunnerPlayerListener(this);
 		blockListener = new RunnerBlockListener(this);
 		entityListener = new RunnerEntityListener(this);
+		inventoryListener = new RunnerInventoryListener(this);
+		serverListener = new RunnerServerListener(this);
+		vehicleListener = new RunnerVehicleListener(this);
+		weatherListener = new RunnerWeatherListener(this);
 	}
 
 	public void registerListener(LuaEventListener Listener) {
@@ -53,16 +59,26 @@ public class EventDispatcher {
 				case ENTITY:
 					thisManager.registerEvent(Type, entityListener, Priority, thisPlugin);
 					break;
+				case INVENTORY:
+					thisManager.registerEvent(Type, inventoryListener, Priority, thisPlugin);
+					break;
+				case SERVER:
+					thisManager.registerEvent(Type, serverListener, Priority, thisPlugin);
+					break;
+				case VEHICLE:
+					thisManager.registerEvent(Type, vehicleListener, Priority, thisPlugin);
+					break;
+				case WEATHER:
+					thisManager.registerEvent(Type, weatherListener, Priority, thisPlugin);
 			}
 
 		}
 	}
 
-	public void raiseCall(Event ev) {
-		for (LuaEventListener lst : listeners) {
-			lst.onAnyEvent(ev);
-		}
+	public List<LuaEventListener> getListeners() {
+		return listeners;
 	}
+
 
 	public void reset() {
 		listeners.clear();

@@ -221,6 +221,9 @@
       </item>
     </group>
   </component>
+  <component name="ProjectDictionaryState">
+    <dictionary name="arrest" />
+  </component>
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/bucketoflua.iml" filepath="$PROJECT_DIR$/bucketoflua.iml" />
