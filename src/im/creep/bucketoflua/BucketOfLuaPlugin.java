@@ -17,6 +17,7 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 	String configurationFile = "BucketOfLua.yml";
 	String logPrefix;
 	BetterConfig config;
+	Boolean failedOnStart = false;
 
 	LuaLangEngine langEngine;
 
@@ -46,17 +47,26 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 
 		mainDir = getDataFolder().getAbsolutePath();
 
-		if (!new File(mainDir).mkdir()) {
-			log.severe(logPrefix + "config directory not present, also unable to create.");
-			return;
+		// Creating a config directory if it doesn't exist yet
+		File mD = new File(mainDir);
+		if (!mD.exists()) {
+			if (!(new File(mainDir).mkdir())) {
+				log.severe(logPrefix + "config directory not present and unable to be made. No operations follow.");
+				failedOnStart = true;
+				return;
+			}
 		}
+
 		config = new BetterConfig(new File(mainDir, configurationFile));
 		config.load();
 
+		// Configuring Lua VMs
 		langEngine = new LuaLangEngine(getSnipList(), log, mainDir);
-		langEngine.setFramework(loadFramework());
 		langEngine.setLogPrefix(logPrefix);
-		langEngine.startEngine();
+		langEngine.setFramework(loadFramework());
+		langEngine.load();
+
+		// Publishing dispatcher and Event.Types
 		langEngine.publishObject("dispatcher", dispatcher);
 		for (Event.Type ev : Event.Type.values()) {
 			langEngine.publishObject("MC_EVENT_" + ev.toString(), ev); // this is the most sane way to push Java enums into Lua
@@ -65,15 +75,16 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 		for (Event.Priority ev : Event.Priority.values()) {
 			langEngine.publishObject("MC_PRIORITY_" + ev.toString(), ev);
 		}
-		langEngine.run();
 
+		// Finally, running
+		langEngine.run();
 		config.save();
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("luareload")) {
 			dispatcher.reset();
-			langEngine.restartEngine();
+			langEngine.reload();
 			langEngine.run();
 			return true;
 		}
@@ -82,7 +93,7 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 
 	public void onDisable() {
 		log.info(logPrefix + "is disabled!");
-		langEngine.stopEngine();
+		if (!failedOnStart) langEngine.unload();
 	}
 
 	private List<Object> getSnipList() {
@@ -96,7 +107,8 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 		try {
 			framework = convertStreamToString(framework_stream);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.warning(logPrefix + "could not find internal framework.lua, snippets will probably go insane");
+			return "";
 		}
 		return framework;
 	}

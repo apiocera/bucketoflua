@@ -53,18 +53,18 @@ public class LuaLangEngine {
 		}
 	}
 
-	public void startEngine() {
+	public void load() {
 		loadLuas();
 		publishSaved();
 	}
 
-	public void stopEngine() {
+	public void unload() {
 		unloadLuas();
 	}
 
-	public void restartEngine() {
-		stopEngine();
-		startEngine();
+	public void reload() {
+		unload();
+		load();
 	}
 
 	// *** and now private
