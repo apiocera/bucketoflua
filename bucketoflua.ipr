@@ -10,11 +10,8 @@
         <element id="directory" name="META-INF">
           <element id="file-copy" path="$PROJECT_DIR$/manifest.mf" output-file-name="MANIFEST.MF" />
         </element>
-        <element id="module-output" name="bucketoflua" />
         <element id="file-copy" path="$PROJECT_DIR$/plugin.yml" />
-        <element id="directory" name="res">
-          <element id="dir-copy" path="$PROJECT_DIR$/res" />
-        </element>
+        <element id="module-output" name="bucketoflua" />
       </root>
     </artifact>
   </component>
@@ -236,7 +233,7 @@
     <output url="file://$PROJECT_DIR$/classes" />
   </component>
   <component name="VcsDirectoryMappings">
-    <mapping directory="" vcs="Git" />
+    <mapping directory="" vcs="" />
   </component>
 </project>
 

@@ -2,6 +2,17 @@ name: BucketOfLua
 main: im.creep.bucketoflua.BucketOfLuaPlugin
 version: 0.0.1-alpha1
 commands:
-   luareload:
-      description: Reload Lua scripts.
-      usage: /luareload
+   lua:
+      description: Primary Lua command center
+      usage: |
+         /lua - entry point for BucketOfLua administrative commands.
+         Following commands may be interesting:
+           /lua run - starts all Lua scripts.
+           /lua stop - stops all Lua scripts.
+           /lua reset - resets Lua subsystem.
+
+   l:
+      description: A proxy for commands reserved by scripts.
+      usage: |
+         /l is a gateway to commands reserved by scripts.
+         /l <command> [args]

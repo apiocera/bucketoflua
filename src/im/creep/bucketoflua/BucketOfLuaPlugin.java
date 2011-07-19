@@ -1,6 +1,5 @@
 package im.creep.bucketoflua;
 
-import com.sun.org.apache.xml.internal.security.signature.ReferenceNotInitializedException;
 import im.creep.bucketoflua.luaengine.LuaLangEngine;
 import im.creep.bucketoflua.tools.BetterConfig;
 import org.bukkit.command.Command;
@@ -9,7 +8,7 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.*;
+import java.io.File;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -71,21 +70,21 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		if (commandLabel.equals("l")){
+		if (commandLabel.equals("l")) {
 			if (args.length < 1) return false;
 			dispatcher.runCommand(sender, args[0], args);
 			return true;
 		}
 
-		if (commandLabel.equals("lua")){
+		if (commandLabel.equals("lua")) {
 			if (args.length < 1) return false;
-			if (args[0].equals("reset")){
+			if (args[0].equals("reset")) {
 				resetPlugin();
 				sender.sendMessage("OK, scripts are resetted.");
 				return true;
 			}
 
-			if (args[0].equals("run")){
+			if (args[0].equals("run")) {
 				if (running) {
 					sender.sendMessage("Already running.");
 				} else {
@@ -96,7 +95,7 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 				return true;
 			}
 
-			if (args[0].equals("stop")){
+			if (args[0].equals("stop")) {
 				if (!running) {
 					sender.sendMessage("Already stopped.");
 				} else {
@@ -128,18 +127,18 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 
 
 	// ...and now command actors
-	private void resetPlugin(){
+	private void resetPlugin() {
 		stopPlugin();
 		runPlugin();
 	}
 
-	private void runPlugin(){
+	private void runPlugin() {
 		running = true;
 		langEngine.load();
 		langEngine.run();
 	}
 
-	private void stopPlugin(){
+	private void stopPlugin() {
 		running = false;
 		dispatcher.reset();
 		langEngine.unload();

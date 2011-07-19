@@ -1,6 +1,5 @@
 package im.creep.bucketoflua;
 
-import com.sun.xml.internal.fastinfoset.algorithm.BooleanEncodingAlgorithm;
 import im.creep.bucketoflua.listeners.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
@@ -66,12 +65,12 @@ public class EventDispatcher {
 		return true;
 	}
 
-	public boolean registerCommand(String cmd, LuaObject Listener){
-		if (!Listener.isFunction()){
+	public boolean registerCommand(String cmd, LuaObject Listener) {
+		if (!Listener.isFunction()) {
 			return false;
 		}
 
-		if (commands.containsKey(cmd)){
+		if (commands.containsKey(cmd)) {
 			return false;
 		}
 
@@ -96,8 +95,8 @@ public class EventDispatcher {
 		}
 	}
 
-	public void runCommand(CommandSender sender, String commandName, String[] cmdargs){
-		if (commands.containsKey(commandName)){
+	public void runCommand(CommandSender sender, String commandName, String[] cmdargs) {
+		if (commands.containsKey(commandName)) {
 			Object args[] = new Object[3];
 			args[0] = sender;
 			args[1] = commandName;

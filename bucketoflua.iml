@@ -12,6 +12,7 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/_MTN" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
@@ -34,6 +35,7 @@
         <JAVADOC />
         <SOURCES>
           <root url="file://D:/luajava-1.1/src" />
+          <root url="file://D:/luajava-1.1/src/java" />
         </SOURCES>
       </library>
     </orderEntry>
