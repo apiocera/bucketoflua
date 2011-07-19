@@ -44,7 +44,7 @@ public class EventDispatcher {
 	public void subscribeTo(Event.Type Type, Event.Priority Priority) {
 		if (!subscriptions.contains(Type)) {
 			// If one subscribes twice to the same event, one will encounter two calls with that event.
-			// That's why I am checking for this awesomeness.
+			// That's why I am checking for this.
 
 			// When it WILL go wrong: when two snips subscribe to the same event, but request different priority.
 			// They will get the event at the same time with priority depending on who's been first to subscribe.
@@ -70,6 +70,7 @@ public class EventDispatcher {
 					break;
 				case WEATHER:
 					thisManager.registerEvent(Type, weatherListener, Priority, thisPlugin);
+					break;
 			}
 
 		}
