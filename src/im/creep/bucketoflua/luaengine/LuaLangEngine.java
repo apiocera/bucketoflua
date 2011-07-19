@@ -11,17 +11,19 @@ public class LuaLangEngine {
 	private ArrayList<LuaStateKeeper> LuaKeepers = new ArrayList<LuaStateKeeper>();
 	private HashMap<String, Object> publishedObjects = new HashMap<String, Object>();
 
-	private List<Object> snipList;
-	private String mainDir;
+	private List<File> snipList;
 
 	private Logger log;
 	private String logPrefix = "[LuaEngine]: ";
 
-	public LuaLangEngine(List<Object> snips, Logger logger, String path) {
-		snipList = snips;
+	public LuaLangEngine(Logger logger) {
 		log = logger;
-		mainDir = path;
 	}
+
+	public void setSnipList(List<File> snipList) {
+		this.snipList = snipList;
+	}
+
 
 	public void setLogPrefix(String logPrefix) {
 		this.logPrefix = logPrefix;
@@ -78,22 +80,14 @@ public class LuaLangEngine {
 	}
 
 	private void loadLuas() {
-		for (Object snip : snipList) {
-			File F = new File(mainDir, snip.toString());
-			if (!F.exists()) {
-				log.warning(logPrefix + "snip " + snip.toString() + " doesn't seem to exist, ignoring");
-				continue;
-			}
-
-			log.info(logPrefix + "loading snip " + snip.toString());
-
-			LuaStateKeeper LuaKeeper = new LuaStateKeeper(snip.toString());
+		for (File snip : snipList) {
+			log.info(logPrefix + "loading snip " + snip.getName());
+			LuaStateKeeper LuaKeeper = new LuaStateKeeper(snip.getName());
 			try {
-				LuaKeeper.addFile(F.getAbsolutePath());
+				LuaKeeper.addFile(snip.getAbsolutePath());
 			} catch (LuaStateKeeperException e) {
-				log.warning(logPrefix + "snip " + snip.toString() + " committed loading error: " + e.getMessage());
+				log.warning(logPrefix + "snip " + snip.getName() + " committed loading error: " + e.getMessage());
 			}
-
 			LuaKeepers.add(LuaKeeper);
 		}
 	}

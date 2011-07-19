@@ -2,18 +2,23 @@ package im.creep.bucketoflua;
 
 import im.creep.bucketoflua.luaengine.LuaLangEngine;
 import im.creep.bucketoflua.tools.BetterConfig;
+import im.creep.bucketoflua.tools.LuaAssistant;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
+import org.bukkit.event.block.Action;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 public class BucketOfLuaPlugin extends JavaPlugin {
-	String mainDir;
+	File mainDir;
 	String configurationFile = "BucketOfLua.yml";
 	String logPrefix;
 	BetterConfig config;
@@ -37,12 +42,11 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 		logPrefix = "[" + pdfFile.getName() + "]: ";
 		log.info(pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!");
 
-		mainDir = getDataFolder().getAbsolutePath();
+		mainDir = new File(getDataFolder().getAbsolutePath());
 
 		// Creating a config directory if it doesn't exist yet
-		File mD = new File(mainDir);
-		if (!mD.exists()) {
-			if (!(new File(mainDir).mkdir())) {
+		if (!mainDir.exists()) {
+			if (!mainDir.mkdir()) {
 				log.severe(logPrefix + "config directory not present and unable to be made. No operations follow.");
 				failedOnStart = true;
 				return;
@@ -53,15 +57,16 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 		config.load();
 
 		// Configuring Lua VMs
-		langEngine = new LuaLangEngine(getSnipList(), log, mainDir);
+		langEngine = new LuaLangEngine(log);
+		langEngine.setSnipList(getSnipList());
 		langEngine.setLogPrefix(logPrefix);
 		langEngine.load();
 
 		// Publishing dispatcher and Event.Types
 		langEngine.publishObject("dispatcher", dispatcher);
-		for (Event.Type ev : Event.Type.values()) {
-			langEngine.publishObject("MC_EVENT_" + ev.toString(), ev); // this is the most sane way to push Java enums into Lua
-		}
+		langEngine.publishObject("assistant", new LuaAssistant());
+		publishEnums();
+
 
 		// Finally, running
 		langEngine.run();
@@ -77,6 +82,11 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 		}
 
 		if (commandLabel.equals("lua")) {
+			if (!sender.isOp()) {
+				sender.sendMessage("You have to be an op to use Lua.");
+				return true;
+			}
+
 			if (args.length < 1) return false;
 			if (args[0].equals("reset")) {
 				resetPlugin();
@@ -121,8 +131,16 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 		if (!failedOnStart) langEngine.unload();
 	}
 
-	private List<Object> getSnipList() {
-		return config.getList("snips");
+	private List<File> getSnipList() {
+		List<File> snips = new ArrayList<File>();
+		File[] children = mainDir.listFiles();
+		if (children != null) {
+			for (File f : children) {
+				if (!f.getName().equals(configurationFile)) snips.add(f);
+			}
+		}
+
+		return snips;
 	}
 
 
@@ -134,6 +152,7 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 
 	private void runPlugin() {
 		running = true;
+		langEngine.setSnipList(getSnipList());
 		langEngine.load();
 		langEngine.run();
 	}
@@ -142,5 +161,24 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 		running = false;
 		dispatcher.reset();
 		langEngine.unload();
+	}
+
+	private void publishEnums() {
+		for (Event.Type ev : Event.Type.values()) {
+			langEngine.publishObject("MC_EVENT_" + ev.toString(), ev); // this is the most sane way to push Java enums into Lua
+		}
+
+		for (Action ac : Action.values()) {
+			langEngine.publishObject("MC_ACTION_" + ac.toString(), ac);
+		}
+
+		for (Material m : Material.values()) {
+			langEngine.publishObject("MC_MATERIAL_" + m.toString(), m);
+		}
+
+		for (ChatColor cc : ChatColor.values()) {
+			langEngine.publishObject("MC_CHATCOLOR_" + cc.toString(), cc);
+		}
+
 	}
 }

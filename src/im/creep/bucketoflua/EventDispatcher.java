@@ -112,6 +112,7 @@ public class EventDispatcher {
 
 	public void reset() {
 		callbacks.clear();
+		commands.clear();
 	}
 
 

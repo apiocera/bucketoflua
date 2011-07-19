@@ -1,6 +1,6 @@
 name: BucketOfLua
 main: im.creep.bucketoflua.BucketOfLuaPlugin
-version: 0.0.1-alpha1
+version: r1-alpha1
 commands:
    lua:
       description: Primary Lua command center
