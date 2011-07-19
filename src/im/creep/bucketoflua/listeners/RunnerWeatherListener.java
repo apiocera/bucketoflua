@@ -1,7 +1,6 @@
 package im.creep.bucketoflua.listeners;
 
 import im.creep.bucketoflua.EventDispatcher;
-import im.creep.bucketoflua.luaengine.LuaEventListener;
 import org.bukkit.event.weather.WeatherListener;
 
 public class RunnerWeatherListener extends WeatherListener {
@@ -12,14 +11,14 @@ public class RunnerWeatherListener extends WeatherListener {
 	}
 
 	public void onWeatherChange(org.bukkit.event.weather.WeatherChangeEvent event) {
-		for (LuaEventListener L : dispatcher.getListeners()) L.onWeatherChange(event);
+		dispatcher.raiseEvent(event);
 	}
 
 	public void onThunderChange(org.bukkit.event.weather.ThunderChangeEvent event) {
-		for (LuaEventListener L : dispatcher.getListeners()) L.onThunderChange(event);
+		dispatcher.raiseEvent(event);
 	}
 
 	public void onLightningStrike(org.bukkit.event.weather.LightningStrikeEvent event) {
-		for (LuaEventListener L : dispatcher.getListeners()) L.onLightningStrike(event);
+		dispatcher.raiseEvent(event);
 	}
 }

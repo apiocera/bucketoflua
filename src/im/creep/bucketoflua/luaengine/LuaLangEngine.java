@@ -1,13 +1,14 @@
 package im.creep.bucketoflua.luaengine;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 public class LuaLangEngine {
-	private HashMap<String, LuaRunner> LuaVMs = new HashMap<String, LuaRunner>();
+	private ArrayList<LuaStateKeeper> LuaKeepers = new ArrayList<LuaStateKeeper>();
 	private HashMap<String, Object> publishedObjects = new HashMap<String, Object>();
 
 	private List<Object> snipList;
@@ -16,18 +17,10 @@ public class LuaLangEngine {
 	private Logger log;
 	private String logPrefix = "[LuaEngine]: ";
 
-	private Boolean useFramework = false;
-	private String framework;
-
 	public LuaLangEngine(List<Object> snips, Logger logger, String path) {
 		snipList = snips;
 		log = logger;
 		mainDir = path;
-	}
-
-	public void setFramework(String newFramework) {
-		useFramework = true;
-		framework = newFramework;
 	}
 
 	public void setLogPrefix(String logPrefix) {
@@ -44,11 +37,11 @@ public class LuaLangEngine {
 	}
 
 	public void run() {
-		for (Map.Entry<String, LuaRunner> LuaVMEntry : LuaVMs.entrySet()) {
+		for (LuaStateKeeper LuaKeeper : LuaKeepers) {
 			try {
-				LuaVMEntry.getValue().run();
-			} catch (LuaRunnerException e) {
-				log.warning(logPrefix + "snip " + LuaVMEntry.getKey() + " committed runtime error: " + e.getMessage());
+				LuaKeeper.run();
+			} catch (LuaStateKeeperException e) {
+				log.warning(logPrefix + "snip " + LuaKeeper.getName() + " committed runtime error: " + e.getMessage());
 			}
 		}
 	}
@@ -59,13 +52,10 @@ public class LuaLangEngine {
 	}
 
 	public void unload() {
-		unloadLuas();
+		stopLuas();
+		LuaKeepers.clear();
 	}
 
-	public void reload() {
-		unload();
-		load();
-	}
 
 	// *** and now private
 	private void publishSaved() {
@@ -75,11 +65,14 @@ public class LuaLangEngine {
 	}
 
 	private void pushObject(String name, Object obj) {
-		for (LuaRunner LuaVM : LuaVMs.values()) {
+		for (LuaStateKeeper LuaKeeper : LuaKeepers) {
+			if (LuaKeeper.isHalted()) {
+				continue;
+			}
 			try {
-				LuaVM.pushObject(name, obj);
-			} catch (LuaRunnerException ex) {
-				log.warning(logPrefix + "cannot push object into " + name + ": " + ex.getMessage());
+				LuaKeeper.pushObject(name, obj);
+			} catch (LuaStateKeeperException ex) {
+				log.warning(logPrefix + "cannot push object " + name + ": " + ex.getMessage());
 			}
 		}
 	}
@@ -94,22 +87,20 @@ public class LuaLangEngine {
 
 			log.info(logPrefix + "loading snip " + snip.toString());
 
-			LuaRunner LuaVM = new LuaRunner();
+			LuaStateKeeper LuaKeeper = new LuaStateKeeper(snip.toString());
 			try {
-				if (useFramework) LuaVM.addCode(framework);
-				LuaVM.addFile(F.getAbsolutePath());
-			} catch (LuaRunnerException e) {
+				LuaKeeper.addFile(F.getAbsolutePath());
+			} catch (LuaStateKeeperException e) {
 				log.warning(logPrefix + "snip " + snip.toString() + " committed loading error: " + e.getMessage());
 			}
 
-			LuaVMs.put(snip.toString(), LuaVM);
+			LuaKeepers.add(LuaKeeper);
 		}
 	}
 
-	private void unloadLuas() {
-		for (LuaRunner LuaVM : LuaVMs.values()) {
-			LuaVM.stop();
+	private void stopLuas() {
+		for (LuaStateKeeper LuaKeeper : LuaKeepers) {
+			LuaKeeper.stop();
 		}
-		LuaVMs.clear();
 	}
 }

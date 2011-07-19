@@ -1,5 +1,6 @@
 package im.creep.bucketoflua;
 
+import com.sun.org.apache.xml.internal.security.signature.ReferenceNotInitializedException;
 import im.creep.bucketoflua.luaengine.LuaLangEngine;
 import im.creep.bucketoflua.tools.BetterConfig;
 import org.bukkit.command.Command;
@@ -19,24 +20,16 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 	BetterConfig config;
 	Boolean failedOnStart = false;
 
+	Boolean running = false;
+
 	LuaLangEngine langEngine;
 
-	String framework;
+	public Logger getLogger() {
+		return log;
+	}
+
 	Logger log = Logger.getLogger("Minecraft");
 	EventDispatcher dispatcher;
-
-	public String convertStreamToString(InputStream is) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(is));
-		StringBuilder sb = new StringBuilder();
-		String line;
-
-		while ((line = br.readLine()) != null) {
-			sb.append(line).append("\n");
-		}
-
-		br.close();
-		return sb.toString();
-	}
 
 	public void onEnable() {
 		dispatcher = new EventDispatcher(this);
@@ -63,7 +56,6 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 		// Configuring Lua VMs
 		langEngine = new LuaLangEngine(getSnipList(), log, mainDir);
 		langEngine.setLogPrefix(logPrefix);
-		langEngine.setFramework(loadFramework());
 		langEngine.load();
 
 		// Publishing dispatcher and Event.Types
@@ -72,23 +64,57 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 			langEngine.publishObject("MC_EVENT_" + ev.toString(), ev); // this is the most sane way to push Java enums into Lua
 		}
 
-		for (Event.Priority ev : Event.Priority.values()) {
-			langEngine.publishObject("MC_PRIORITY_" + ev.toString(), ev);
-		}
-
 		// Finally, running
 		langEngine.run();
+		running = true;
 		config.save();
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		if (cmd.getName().equalsIgnoreCase("luareload")) {
-			dispatcher.reset();
-			langEngine.reload();
-			langEngine.run();
+		if (commandLabel.equals("l")){
+			if (args.length < 1) return false;
+			dispatcher.runCommand(sender, args[0], args);
 			return true;
 		}
+
+		if (commandLabel.equals("lua")){
+			if (args.length < 1) return false;
+			if (args[0].equals("reset")){
+				resetPlugin();
+				sender.sendMessage("OK, scripts are resetted.");
+				return true;
+			}
+
+			if (args[0].equals("run")){
+				if (running) {
+					sender.sendMessage("Already running.");
+				} else {
+					runPlugin();
+					sender.sendMessage("OK, scripts are running.");
+
+				}
+				return true;
+			}
+
+			if (args[0].equals("stop")){
+				if (!running) {
+					sender.sendMessage("Already stopped.");
+				} else {
+					stopPlugin();
+					sender.sendMessage("OK, scripts are stopped.");
+				}
+				return true;
+			}
+
+			// Not now.
+			/*if (args[0].equals("console")){
+				if (args.length < 2){
+
+				}
+			}*/
+		}
 		return false;
+
 	}
 
 	public void onDisable() {
@@ -100,16 +126,22 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 		return config.getList("snips");
 	}
 
-	private String loadFramework() {
-		InputStream framework_stream;
 
-		framework_stream = getClass().getResourceAsStream("/res/framework.lua");
-		try {
-			framework = convertStreamToString(framework_stream);
-		} catch (IOException e) {
-			log.warning(logPrefix + "could not find internal framework.lua, snippets will probably go insane");
-			return "";
-		}
-		return framework;
+	// ...and now command actors
+	private void resetPlugin(){
+		stopPlugin();
+		runPlugin();
+	}
+
+	private void runPlugin(){
+		running = true;
+		langEngine.load();
+		langEngine.run();
+	}
+
+	private void stopPlugin(){
+		running = false;
+		dispatcher.reset();
+		langEngine.unload();
 	}
 }
