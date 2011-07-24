@@ -1,6 +1,7 @@
 package im.creep.bucketoflua;
 
 import im.creep.bucketoflua.listeners.*;
+import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -79,6 +80,10 @@ public class EventDispatcher {
 		return true;
 	}
 
+	public Server getServer(){
+		return thisPlugin.getServer();
+	}
+
 	// Interface for Java event handling
 	public void raiseEvent(Event ev) {
 		Event args[] = new Event[1];
@@ -94,10 +99,6 @@ public class EventDispatcher {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	public void runCommand(CommandSender sender, String command) {
-
 	}
 
 	public boolean parseCommand(PlayerCommandPreprocessEvent ev){
