@@ -5,4 +5,4 @@ function broken(event)
 	player:chat("i broke block id " .. id)
 end
 
-dispatcher:registerListener(MC_EVENT_BLOCK_BREAK, broken)
+dispatcher:registerListener(MC_EVENT_BLOCK_BREAK, broken) 

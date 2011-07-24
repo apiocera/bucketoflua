@@ -1,5 +1,4 @@
-should_announce = true
-
+should_announce = false
 function onJoin(event)
   local player = event:getPlayer()
   print(player:getName())
@@ -15,12 +14,12 @@ end
 
 
 -- commands
-function shut_up(sender, cName, cmdargs)
+function shut_up(sender, cmdargs)
 	should_announce = false
 	sender:sendMessage("no more word")
 end
 
-function speak(sender, cName, cmdargs)
+function speak(sender, cmdargs)
 	should_announce = true
 	sender:sendMessage("okay, speaking starting now")
 end
