@@ -12,6 +12,7 @@
         </element>
         <element id="file-copy" path="$PROJECT_DIR$/plugin.yml" />
         <element id="module-output" name="bucketoflua" />
+        <element id="library" level="module" name="luajava-1.1.jar" module-name="bucketoflua" />
       </root>
     </artifact>
   </component>

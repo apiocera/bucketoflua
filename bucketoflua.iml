@@ -27,18 +27,6 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library name="luajava-1.1.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../luajava-1.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="file://D:/luajava-1.1/src" />
-          <root url="file://D:/luajava-1.1/src/java" />
-        </SOURCES>
-      </library>
-    </orderEntry>
   </component>
 </module>
 

@@ -10,9 +10,3 @@ commands:
            /lua run - starts all Lua scripts.
            /lua stop - stops all Lua scripts.
            /lua reset - resets Lua subsystem.
-
-   l:
-      description: A proxy for commands reserved by scripts.
-      usage: |
-         /l is a gateway to commands reserved by scripts.
-         /l <command> [args]

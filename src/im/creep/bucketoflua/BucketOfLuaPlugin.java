@@ -28,15 +28,18 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 
 	LuaLangEngine langEngine;
 
+	Logger log = Logger.getLogger("Minecraft");
+	EventDispatcher dispatcher;
+
+	CommandListener commandListener;
+
 	public Logger getLogger() {
 		return log;
 	}
 
-	Logger log = Logger.getLogger("Minecraft");
-	EventDispatcher dispatcher;
-
 	public void onEnable() {
 		dispatcher = new EventDispatcher(this);
+		commandListener = new CommandListener(dispatcher);
 
 		PluginDescriptionFile pdfFile = this.getDescription();
 		logPrefix = "[" + pdfFile.getName() + "]: ";
@@ -72,14 +75,12 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 		langEngine.run();
 		running = true;
 		config.save();
+
+		// and now registering command preprocessor
+		this.getServer().getPluginManager().registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, commandListener, Event.Priority.Highest, this);
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		if (commandLabel.equals("l")) {
-			if (args.length < 1) return false;
-			dispatcher.runCommand(sender, args[0], args);
-			return true;
-		}
 
 		if (commandLabel.equals("lua")) {
 			if (!sender.isOp()) {
@@ -114,13 +115,6 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 				}
 				return true;
 			}
-
-			// Not now.
-			/*if (args[0].equals("console")){
-				if (args.length < 2){
-
-				}
-			}*/
 		}
 		return false;
 
@@ -136,7 +130,7 @@ public class BucketOfLuaPlugin extends JavaPlugin {
 		File[] children = mainDir.listFiles();
 		if (children != null) {
 			for (File f : children) {
-				if (!f.getName().equals(configurationFile)) snips.add(f);
+				if (f.getName().endsWith(".lua")) snips.add(f);
 			}
 		}
 

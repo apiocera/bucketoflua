@@ -21,7 +21,8 @@ public class LuaStateKeeper {
 
 	public void addCode(String Code) throws LuaStateKeeperException {
 		if (halted) abortRunner("Adding code string while Runner is halted");
-		if (state.LloadString(Code) != 0) abortRunner(getError());
+		state.LloadBuffer(Code.getBytes(), "console");
+		// if (state.LloadString(Code) != 0) abortRunner(getError());
 	}
 
 	public void addFile(String File) throws LuaStateKeeperException {

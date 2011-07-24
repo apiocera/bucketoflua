@@ -3,6 +3,7 @@ package im.creep.bucketoflua;
 import im.creep.bucketoflua.listeners.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.keplerproject.luajava.LuaException;
@@ -10,12 +11,12 @@ import org.keplerproject.luajava.LuaObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class EventDispatcher {
-	private HashMap<Event.Type, ArrayList<LuaObject>> callbacks = new HashMap<Event.Type, ArrayList<LuaObject>>();
+	private Map<String, LuaObject> commands = new HashMap<String, LuaObject>();
+	private Map<Event.Type, ArrayList<LuaObject>> callbacks = new HashMap<Event.Type, ArrayList<LuaObject>>();
 	private ArrayList<Event.Type> registeredEvents = new ArrayList<Event.Type>();
-
-	private HashMap<String, LuaObject> commands = new HashMap<String, LuaObject>();
 
 	private Plugin thisPlugin;
 	private PluginManager thisManager;
@@ -95,18 +96,26 @@ public class EventDispatcher {
 		}
 	}
 
-	public void runCommand(CommandSender sender, String commandName, String[] cmdargs) {
-		if (commands.containsKey(commandName)) {
-			Object args[] = new Object[3];
-			args[0] = sender;
-			args[1] = commandName;
-			args[2] = cmdargs;
-			try {
-				commands.get(commandName).call(args);
-			} catch (LuaException e) {
-				e.printStackTrace();
+	public void runCommand(CommandSender sender, String command) {
+
+	}
+
+	public boolean parseCommand(PlayerCommandPreprocessEvent ev){
+		for (Map.Entry<String, LuaObject> commandListener : commands.entrySet()){
+			if (ev.getMessage().equals("/" + commandListener.getKey()) || ev.getMessage().startsWith("/" + commandListener.getKey() + " ")){
+				Object args[] = new Object[2];
+				args[0] = ev.getPlayer();
+				args[1] = ev.getMessage();
+				try {
+					commandListener.getValue().call(args);
+				} catch (LuaException e) {
+					e.printStackTrace();
+				}
+				return true;
 			}
 		}
+
+		return false;
 	}
 
 
