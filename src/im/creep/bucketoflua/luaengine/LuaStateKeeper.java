@@ -14,9 +14,8 @@ public class LuaStateKeeper {
 		name = runnerName;
 
 		state = LuaStateFactory.newLuaState();
-		state.openBase();
-		state.openString();
-		state.openTable();
+                // Opening all libs for work with  file and modules and so on
+		state.openLibs(); 
 	}
 
 	public void addCode(String Code) throws LuaStateKeeperException {
